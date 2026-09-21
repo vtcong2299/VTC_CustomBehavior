@@ -1,0 +1,17 @@
+{
+    "name": "vtcong.custombehaviour.examples",
+    "rootNamespace": "Vtcong.Core.Examples",
+    "references": [
+        "vtcong.custombehaviour.runtime",
+        "vtcong.singleton.runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

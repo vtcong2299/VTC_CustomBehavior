@@ -1,0 +1,17 @@
+{
+  "name": "com.vtcong.custombehaviour",
+  "version": "1.0.0",
+  "displayName": "VTC Custom Behaviour",
+  "description": "Thay Update/FixedUpdate/LateUpdate cua tung MonoBehaviour bang mot vong lap tap trung.",
+  "unity": "2021.3",
+  "author": {
+    "name": "vtcong2299",
+    "url": "https://github.com/vtcong2299"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vtcong2299/VTC_CustomBehavior.git"
+  },
+  "keywords": ["performance", "update-loop", "monobehaviour", "unity"],
+  "dependencies": {}
+}
