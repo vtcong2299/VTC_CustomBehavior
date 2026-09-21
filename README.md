@@ -42,8 +42,8 @@ khai báo đè các message gốc sẽ làm object không bao giờ đăng ký �
 
 ## Examples
 
-`Examples/Runtime/` có các behaviour mẫu và `BehaviourRegressionTests` — chạy scene rồi
-xem kết quả hiện trên màn hình.
+Sample **Examples** có các behaviour mẫu và `BehaviourRegressionTests` — import qua
+Package Manager (xem mục cuối), chạy scene rồi xem kết quả hiện trên màn hình.
 
 ## Dependency được cài tự động thế nào
 
@@ -68,3 +68,14 @@ Muốn khai báo tay thì thêm vào `Packages/manifest.json`:
   }
 }
 ```
+
+## Mở scene sample
+
+Sample **không** được import sẵn. Vào **Window ▸ Package Manager ▸ VTC Custom Behaviour ▸ Samples ▸ Import**.
+
+Unity copy sample vào `Assets/Samples/VTC Custom Behaviour/<version>/Examples/`, từ đó mở scene bình thường.
+
+> **Vì sao phải import?** Package cài qua git URL nằm trong `Library/PackageCache` và ở
+> chế độ read-only. Unity **cấm mở scene nằm trong package read-only** — báo
+> *"It is not allowed to open a scene in a read-only package"*. Cơ chế Samples của UPM
+> sinh ra chính để giải quyết việc này: nó copy sample sang `Assets/` nơi file ghi được.

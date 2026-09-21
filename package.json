@@ -1,6 +1,6 @@
 {
   "name": "com.vtcong.custombehaviour",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "VTC Custom Behaviour",
   "description": "Thay Update/FixedUpdate/LateUpdate cua tung MonoBehaviour bang mot vong lap tap trung.",
   "unity": "2021.3",
@@ -13,5 +13,12 @@
     "url": "https://github.com/vtcong2299/VTC_CustomBehavior.git"
   },
   "keywords": ["performance", "update-loop", "monobehaviour", "unity"],
-  "dependencies": {}
+  "dependencies": {},
+  "samples": [
+    {
+      "displayName": "Examples",
+      "description": "Cac behaviour mau va bo regression test hien ket qua tren man hinh.",
+      "path": "Samples~/Examples"
+    }
+  ]
 }
