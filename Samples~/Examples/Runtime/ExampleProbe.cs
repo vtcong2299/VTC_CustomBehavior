@@ -26,11 +26,14 @@ namespace Vtcong.Core.Examples
         /// <summary>Runs inside OnBehaviourUpdate, i.e. while the manager is iterating.</summary>
         public Action<ExampleProbe> DuringUpdate { get; set; }
 
-        public static ExampleProbe Create(string probeName, Transform parent)
+        public static ExampleProbe Create(string probeName, Transform parent) =>
+            Create<ExampleProbe>(probeName, parent);
+
+        public static T Create<T>(string probeName, Transform parent) where T : ExampleProbe
         {
             GameObject go = new(probeName);
             go.transform.SetParent(parent, false);
-            return go.AddComponent<ExampleProbe>();
+            return go.AddComponent<T>();
         }
 
         protected override void OnBehaviourStart()

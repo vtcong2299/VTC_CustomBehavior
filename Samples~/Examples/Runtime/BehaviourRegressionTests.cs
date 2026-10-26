@@ -37,6 +37,9 @@ namespace Vtcong.Core.Examples
             yield return ExceptionDoesNotStopTheLoop();
             yield return AllThreeLoopsRun();
             yield return DisableThenEnableReRegisters();
+            yield return RemovalKeepsRegistrationOrder();
+            yield return ExecutionOrderRunsEarlyFirst();
+            yield return MissingManagerIsCreated();
 
             foreach (ExampleProbe probe in probes)
                 if (probe != null)
@@ -168,9 +171,94 @@ namespace Vtcong.Core.Examples
                 $"stopped={stopped}, resumed={resumed}");
         }
 
-        private ExampleProbe NewProbe(string probeName)
+        // Swap-remove moved the last entry into the freed slot, so removing from the
+        // middle reordered everyone after it.
+        private IEnumerator RemovalKeepsRegistrationOrder()
         {
-            ExampleProbe probe = ExampleProbe.Create(probeName, transform);
+            var log = new List<string>();
+            ExampleProbe[] row = { NewProbe("T7_A"), NewProbe("T7_B"), NewProbe("T7_C"), NewProbe("T7_D") };
+            foreach (ExampleProbe probe in row)
+                probe.DuringUpdate = p => log.Add(p.name);
+
+            yield return null;
+            yield return null;
+
+            row[1].enabled = false;
+            log.Clear();
+            yield return null;
+            string afterRemove = string.Join(",", log);
+
+            row[1].enabled = true;
+            log.Clear();
+            yield return null;
+            string afterReAdd = string.Join(",", log);
+
+            foreach (ExampleProbe probe in row)
+                probe.DuringUpdate = null;
+
+            Report("Removal keeps registration order",
+                afterRemove == "T7_A,T7_C,T7_D" && afterReAdd == "T7_A,T7_C,T7_D,T7_B",
+                $"after remove [{afterRemove}], after re-enable [{afterReAdd}]");
+        }
+
+        // There was no way to run one behaviour before another.
+        private IEnumerator ExecutionOrderRunsEarlyFirst()
+        {
+            var log = new List<string>();
+            ExampleProbe normal = NewProbe("T8_Default");
+            ExampleProbe early = NewProbe<ExampleEarlyProbe>("T8_Early");
+            normal.DuringUpdate = p => log.Add(p.name);
+            early.DuringUpdate = p => log.Add(p.name);
+
+            yield return null;
+            yield return null;
+            log.Clear();
+            yield return null;
+
+            normal.DuringUpdate = null;
+            early.DuringUpdate = null;
+
+            string ran = string.Join(",", log);
+            Report("[DefaultExecutionOrder] runs early first", ran == "T8_Early,T8_Default",
+                $"ran [{ran}] (expected [T8_Early,T8_Default])");
+        }
+
+        // A scene without a BehaviourManager used to leave every behaviour silently dead.
+        // Runs last: it destroys the scene's manager.
+        private IEnumerator MissingManagerIsCreated()
+        {
+            Destroy(BehaviourManager.Instance.gameObject);
+            yield return null;
+
+            ExampleProbe probe = NewProbe("T9_NoManager"); // expected: one warning in the console
+            yield return null;
+            yield return null;
+
+            bool created = BehaviourManager.Instance != null;
+            Report("Missing manager is created on demand", created && probe.UpdateCount > 0,
+                $"manager created={created}, updates={probe.UpdateCount}");
+
+            // behaviours already in the scene lost the destroyed manager; toggling re-registers them
+#if UNITY_6000_4_OR_NEWER
+            CustomBehaviour[] alive = FindObjectsByType<CustomBehaviour>();
+#elif UNITY_2023_1_OR_NEWER
+            CustomBehaviour[] alive = FindObjectsByType<CustomBehaviour>(FindObjectsSortMode.None);
+#else
+            CustomBehaviour[] alive = FindObjectsOfType<CustomBehaviour>();
+#endif
+            foreach (CustomBehaviour behaviour in alive)
+            {
+                if (!behaviour.enabled) continue;
+                behaviour.enabled = false;
+                behaviour.enabled = true;
+            }
+        }
+
+        private ExampleProbe NewProbe(string probeName) => NewProbe<ExampleProbe>(probeName);
+
+        private T NewProbe<T>(string probeName) where T : ExampleProbe
+        {
+            T probe = ExampleProbe.Create<T>(probeName, transform);
             probes.Add(probe);
             return probe;
         }

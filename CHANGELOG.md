@@ -4,6 +4,19 @@ Tất cả thay đổi đáng chú ý của VTC Custom Behaviour được ghi �
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/),
 đánh số theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [1.2.0] - 2026-10-26
+
+### Added
+- Ưu tiên chạy qua `[DefaultExecutionOrder]`: thứ tự tăng dần, cùng mức thì theo thứ tự đăng ký.
+- Scene không có `BehaviourManager` thì tự tạo một bản DontDestroyOnLoad và báo cảnh báo.
+- Editor báo lỗi khi lớp con tự khai báo `OnEnable` / `Start` / `OnDisable`.
+- Ba test hồi quy mới trong sample: giữ thứ tự khi xoá, ưu tiên, tự tạo manager.
+
+### Changed
+- `OnEnable` / `Start` / `OnDisable` của `CustomBehaviour` chuyển từ `private` sang `protected`,
+  để lớp con khai báo đè bị compiler cảnh báo CS0108.
+- Huỷ đăng ký không còn xáo thứ tự các behaviour còn lại.
+
 ## [1.1.0] - 2026-10-26
 
 ### Added

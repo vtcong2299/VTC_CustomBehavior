@@ -8,25 +8,26 @@ namespace Vtcong.Core
         internal int FixedUpdateIndex { get; set; } = -1;
         internal int LateUpdateIndex { get; set; } = -1;
 
-        private bool isRegistered;
+        private BehaviourManager registeredManager;
 
-        // Sealed on purpose: a subclass that declares its own OnEnable/OnDisable/Start
-        // would silently shadow these and never reach BehaviourManager.
+        // Protected and non-virtual: a subclass that declares its own OnEnable/Start/OnDisable
+        // hides these (compiler warning CS0108) and CustomBehaviourValidator logs an error in the
+        // editor, because Unity would then call only the subclass and registration never happens.
         // Override the OnBehaviour* hooks below instead.
-        private void OnEnable()
+        protected void OnEnable()
         {
             Register();
             OnBehaviourEnable();
         }
 
-        private void Start()
+        protected void Start()
         {
             // OnEnable can run before BehaviourManager.Awake; Start is the safety net.
             Register();
             OnBehaviourStart();
         }
 
-        private void OnDisable()
+        protected void OnDisable()
         {
             Unregister();
             OnBehaviourDisable();
@@ -46,24 +47,21 @@ namespace Vtcong.Core
 
         private void Register()
         {
-            if (isRegistered) return;
+            if (registeredManager != null) return;
 
-            BehaviourManager manager = BehaviourManager.Instance;
+            BehaviourManager manager = BehaviourManager.GetOrCreate();
             if (manager == null) return;
 
             manager.Register(this);
-            isRegistered = true;
+            registeredManager = manager;
         }
 
         private void Unregister()
         {
-            if (!isRegistered) return;
+            if (registeredManager != null)
+                registeredManager.Unregister(this);
 
-            BehaviourManager manager = BehaviourManager.Instance;
-            if (manager != null)
-                manager.Unregister(this);
-
-            isRegistered = false;
+            registeredManager = null;
         }
 
         /// <summary>
@@ -72,7 +70,7 @@ namespace Vtcong.Core
         /// </summary>
         internal void ResetRegistration()
         {
-            isRegistered = false;
+            registeredManager = null;
         }
     }
 }

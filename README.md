@@ -39,15 +39,34 @@ public class Rotator : CustomBehaviour, IUpdateBehaviour
 }
 ```
 
-Đăng ký và huỷ đăng ký là tự động. `OnEnable` / `OnDisable` / `Start` bị seal có chủ ý —
-override `OnBehaviourEnable` / `OnBehaviourDisable` / `OnBehaviourStart` thay thế, vì
-khai báo đè các message gốc sẽ làm object không bao giờ đăng ký được.
+Đăng ký và huỷ đăng ký là tự động. **Không** tự viết `OnEnable` / `Start` / `OnDisable` trong
+lớp con: Unity sẽ chỉ gọi hàm của lớp con và object không bao giờ được đăng ký. Override
+`OnBehaviourEnable` / `OnBehaviourStart` / `OnBehaviourDisable` thay thế. Nếu lỡ viết, compiler
+báo cảnh báo CS0108 và Console của Editor báo lỗi ghi rõ tên class sau mỗi lần biên dịch.
 
 | Interface | Vòng lặp |
 |---|---|
 | `IUpdateBehaviour` | `OnBehaviourUpdate(float dt)` |
 | `IFixedUpdateBehaviour` | `OnBehaviourFixedUpdate(float dt)` |
 | `ILateUpdateBehaviour` | `OnBehaviourLateUpdate(float dt)` |
+
+## Thứ tự chạy
+
+Trong mỗi vòng lặp, behaviour chạy theo `[DefaultExecutionOrder]` tăng dần, cùng mức thì theo
+thứ tự đăng ký. Huỷ đăng ký không làm xáo thứ tự các behaviour còn lại.
+
+```csharp
+[DefaultExecutionOrder(-100)]   // chạy trước mọi behaviour mức mặc định 0
+public class InputReader : CustomBehaviour, IUpdateBehaviour { ... }
+```
+
+Attribute không kế thừa sang lớp con (giống cách Unity xử lý), nên mỗi class tự khai báo.
+Bật lại một behaviour đã tắt thì nó xếp cuối mức ưu tiên của nó.
+
+## BehaviourManager
+
+Nên đặt sẵn một `BehaviourManager` trong scene. Nếu scene không có, behaviour đầu tiên được bật
+sẽ tự tạo một `[BehaviourManager]` (DontDestroyOnLoad) và Console báo một cảnh báo.
 
 ## Examples
 
